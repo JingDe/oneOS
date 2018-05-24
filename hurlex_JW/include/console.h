@@ -14,7 +14,6 @@ typedef enum real_color{
 	rc_black=0,
 	rc_blue=1,
 	rc_green=2,
-	rc_green = 2,
 	rc_cyan = 3,
 	rc_red = 4,
 	rc_magenta = 5,
