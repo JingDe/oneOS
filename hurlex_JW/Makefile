@@ -11,7 +11,7 @@ CC=gcc
 LD=ld
 ASM=nasm
 
-# 编译标志：编译32位代码；使用gdb调试；不使用标准库；不使用gcc内置函数；不报栈保护错误；
+# 编译标志：生成32位代码；添加调试信息；不使用标准库的头文件；要求gcc不主动使用内建函数；不使用栈保护等检测；
 C_FLAGS=-c -Wall -m32 -ggdb -gstabs -nostdinc -fno-builtin -fno-stack-protector -I include
 # 链接标志：使用链接脚本scripts/kernel.ld 生成i386架构下elf格式的可执行文件；不链接标准库
 LD_FLAGS=-T scripts/kernel.ld -m elf_i386 -nostdlib
@@ -32,32 +32,33 @@ all: $(S_OBJECTS) $(C_OBJECTS) link update_image
 	
 link:
 	@echo 链接内核文件
-	$(LD) $(LD_FLAGS) $(S_OBJECTS) $(C_OBJECTS) -o jw_kernel
+	$(LD) $(LD_FLAGS) $(S_OBJECTS) $(C_OBJECTS) -o hx_kernel
 
 
 .PHONY:clean
 clean:
-	$(RM) $(S_OBJECTS) $(C_OBJECTS) jw_kernel
+	$(RM) $(S_OBJECTS) $(C_OBJECTS) hx_kernel
 	
-# 更新floppy.img的jw_kernel内核文件
-.PHONY:update_image:
+# 更新floppy.img的hx_kernel内核文件
+.PHONY:update_image
 update_image:
-	sudo mount floppy.img /mnt/kernel
-	sudo cp jw_kernel /mnt/kernel/jw_kernel
+	mount floppy.img /mnt/kernel
+	cp hx_kernel /mnt/kernel/hx_kernel
 	sleep 1
-	sudo unmount /mnt/kernel
+	umount /mnt/kernel
 	
 .PHONY:mount_image
 mount_image:
-	sudo mount floppy.img /mnt/kernel
+	mount floppy.img /mnt/kernel
 	
-.PHONY:unmount_image
-unmount_image:
-	sudo unmount /mnt/kernel
+.PHONY:umount_image
+umount_image:
+	umount /mnt/kernel
 	
 .PHONY:qemu
 qemu:
-	qemu -fda floppy.img -boot a
+	qemu -drive file=floppy.img,format=raw,index=0,if=floppy
+	#qemu -fda floppy.img -boot a
 	
 .PHONY:bochs
 bochs:
@@ -65,7 +66,8 @@ bochs:
 	
 .PHONY:debug
 debug:
-	qemu -S -s -fda floppy.img -boot a &
+	#qemu -S -s -fda floppy.img -boot a &
+	qemu -S -s -drive file=floppy.img,format=raw,index=0,if=floppy &
 	sleep 1
 	cgdb -x scripts/gdbinit
 	
