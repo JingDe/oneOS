@@ -1,4 +1,9 @@
 #include"debug.h"
+#include"string.h"
+#include"vargs.h"
+#include"debug.h"
+
+static int vsprintf(char *buff, const char* format, va_list args);
 
 // 调用形式 printk("hello, %s, %d\n", str1, x)
 void printk(const char* format, ...)
@@ -14,6 +19,123 @@ void printk(const char* format, ...)
 	buff[i]='\0';
 	
 	console_write(buff);	
+}
+
+void printk_color(real_color_t back, real_color_t fore, const char* format, ...)
+{
+	static char buff[1024];
+	va_list args;
+	int i;
+	
+	va_start(args, format);//args只想参数列表的第一个参数
+	i=vsprintf(buff, format, args);
+	va_end(args);
+	
+	buff[i]='\0';
+	
+	console_write_color(buff, back, fore);	
+}
+
+#define is_digit(c)  ((c)>='0'  &&  (c)<='9')
+
+static int skip_atoi(const char** s)
+{
+	int i=0;
+	
+	while(is_digit(**s))
+		i=i*10+ *((*s)++)-'0';
+	return i;
+}
+
+#define ZEROPAD 1
+#define SIGN	2
+#define PLUS	4
+#define SPACE	8
+#define LEFT	16
+#define SPECIAL	32	// 0X
+#define SMALL	64
+
+#define do_div(n, base) ({	\
+	int __res;				\
+	__asm__("divl %4":"=a" (n), "=d" (__res):"0" (n), "1" (0), "r" (base));\
+	__res;	})
+
+static char *number(char* str, int num, int base, int size, int precision, int type)
+{
+	char c, sign, tmp[36];
+	const char* digits="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	int i;
+	
+	if(type & LEFT)
+		digits="0123456789abcdefghijklmnopqrstuvwxyz";;
+	if(type  &  LEFT)
+		type &= ~ZEROPAD;
+	if(base <2  ||  base>36)
+		return 0;
+	
+	c=(type & ZEROPAD)?  '0'  :  ' ';
+	
+	if(type & SIGN  &&  num<0)
+	{
+		sign='-';
+		num=-num;
+	}
+	else
+		sign=(type & PLUS)? '+'  :  ((type & SPACE)?  ' '  :  0);
+		
+	if(sign)
+		size--;
+	if(type &  SPECIAL)
+	{
+		if(base==16)
+			size-=2;
+		else if(base==8)
+			size--;
+	}
+	
+	i=0;
+	if(num==0)
+		tmp[i++]='0';
+	else
+	{
+		while(num!=0)
+			tmp[i++]=digits[do_div(num, base)];
+	}
+	
+	if(i>precision)
+		precision=i;
+	size-=precision;
+	
+	if(!(type & (ZEROPAD+LEFT)))
+	{
+		while(size-->0)
+			*str++=' ';
+	}
+	if(sign)
+		*str++=sign;
+	if(type &  SPECIAL)
+	{
+		if(base==8)
+			*str++='0';
+		else if(base==16)
+		{
+			*str++='0';
+			*str++=digits[33];
+		}
+	}
+	if(!(type &  LEFT))
+	{
+		while(size-->0)
+			*str++=c;
+	}
+	while(i<precision--)//整数的精度用0填补
+		*str++='0';
+	while(i-->0)
+		*str++=tmp[i];
+	while(size-->0)
+		*str++=' ';
+	
+	return str;
 }
 
 static int vsprintf(char *buff, const char* format, va_list args)
@@ -60,7 +182,7 @@ static int vsprintf(char *buff, const char* format, va_list args)
 			}
 			
 		// get field_width
-		filed_width=-1;
+		field_width=-1;
 		if(is_digit(*format))
 			field_width=skip_atoi(&format);
 		else  if(*format=='*')
@@ -100,7 +222,7 @@ static int vsprintf(char *buff, const char* format, va_list args)
 					*str++=' ';
 			}
 			*str++=(unsigned char) va_arg(args, int);
-			while(--filed_width>0)
+			while(--field_width>0)
 				*str++=' ';
 			break;
 			
@@ -114,17 +236,17 @@ static int vsprintf(char *buff, const char* format, va_list args)
 			
 			if(!(flags  &  LEFT))
 			{
-				while(len<filed_width--)
+				while(len<field_width--)
 					*str++=' ';
 			}
 			for(i=0; i<len; ++i)
 				*str++=*s++;
-			while(len<filed_width--)
-				*str++' ';
+			while(len<field_width--)
+				*str++=' ';
 			break;
 			
 		case 'o':// octal
-			str=number(str, va_arg(args, unsigned long), 8, field_width, precision, flags));
+			str=number(str, va_arg(args, unsigned long), 8, field_width, precision, flags);
 			break;
 			
 		case 'p':// pointer
