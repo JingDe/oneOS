@@ -14,6 +14,7 @@ SECTIONS
 {
 	. =0x100000;
 	
+	PROVIDE( kern_start = . );
 	.text :
 	{
 		*(.text)
@@ -40,5 +41,7 @@ SECTIONS
 		*(.stabstr)
 		. = ALIGN(4096);
 	}
-	/DISCARD/ : { *(.comment) *(.eh_frame)}
+	PROVIDE( kern_end = . );
+	
+	/DISCARD/ : { *(.comment) *(.eh_frame) }
 }
