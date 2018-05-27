@@ -149,7 +149,7 @@ void irq_handler(pt_regs* regs)
 	// 从32号中断起为用户自定义中断
 	// 单片的Intel 8259芯片只能处理8级中断
 	// 大于40号的中断由从片处理
-	if(reg->int_no >= 40)
+	if(regs->int_no >= 40)
 		outb(0xA0, 0x20);// 发送重设信号给从片
 	
 	// 发送重设信号给主片
