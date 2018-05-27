@@ -23,4 +23,19 @@
 extern uint8_t kern_start[];
 extern uint8_t kern_end[];
 
+// 动态分配物理内存页的总数
+extern uint32_t phy_page_count;
+
+// 输出 BIOS 提供的物理内存布局
+void show_memory_map();
+
+// 初始化物理内存管理
+void init_pmm();
+
+// 返回一个内存页的物理地址
+uint32_t pmm_alloc_page();
+
+// 释放申请的内存
+void pmm_free_page(uint32_t p);
+
 #endif
