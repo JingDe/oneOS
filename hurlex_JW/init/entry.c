@@ -1,3 +1,4 @@
+#include"common.h"
 #include"string.h"
 #include"console.h"
 #include"debug.h"
@@ -6,6 +7,10 @@
 #include "timer.h"
 #include "pmm.h"
 #include"vmm.h"
+#include"heap.h"
+#include"sched.h"
+#include"task.h"
+
 
 // 内核初始化函数
 void kern_init();
@@ -15,6 +20,9 @@ multiboot_t* glb_mboot_ptr;
 
 // 开启分页机制后的内核栈
 char kern_stack[STACK_SIZE];
+
+// 内核栈的栈顶
+uint32_t kern_stack_top;
 
 // 内核使用的临时页表和页目录，使用1MB以下的12KB来放置
 // 该地址必须是页对齐的地址，内存0-640KB 肯定是空闲的
@@ -67,6 +75,21 @@ __attribute__((section(".init.text"))) void kern_entry()
 	kern_init();
 }
 
+int flag=0;
+
+int thread(void *arg)
+{
+	while(1)
+	{
+		if(flag==1)
+		{
+			printk_color(rc_black, rc_green, "B");
+			flag=0;
+		}
+	}
+	return 0;
+}
+
 void kern_init()
 {
 	init_debug();
@@ -110,6 +133,22 @@ void kern_init()
 */
 
 	test_heap();
+	
+	init_sched();
+	
+	kernel_thread(thread, NULL);
+	
+	// 开启中断
+	enable_intr();
+	
+	while(1)
+	{
+		if(flag==0)
+		{
+			printk_color(rc_black, rc_red, "A");
+			flag=1;
+		}
+	}
 	
 	printk("hlt...\n");
 	while(1)
