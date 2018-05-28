@@ -9,7 +9,7 @@
 // 支持的最大物理内存(512MB)
 #define PMM_MAX_SIZE 0x20000000
 
-// 物理内存页框大小 
+// 物理内存页框大小 4GB
 #define PMM_PAGE_SIZE 0x1000
 
 // 最多支持的物理页面个数

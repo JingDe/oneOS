@@ -45,10 +45,11 @@ void init_pmm()
 			// 把内核结束位置到结束位置的内存段，把页存储到页管理栈里
 			// 最多支持512MB的物理内存
 			uint32_t page_addr=map_entry->base_addr_low + (uint32_t)(kern_end - kern_start);
-			uint32_t length=map_entry->base_addr_low+map_entry->length_low;
+			uint32_t length=map_entry->base_addr_low + map_entry->length_low;
 			
 			while(page_addr<length  &&  page_addr<=PMM_MAX_SIZE)
 			{
+				// 添加可用内存到页管理栈中
 				pmm_free_page(page_addr);
 				page_addr += PMM_PAGE_SIZE;
 				phy_page_count++;
