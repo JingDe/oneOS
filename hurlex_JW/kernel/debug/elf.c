@@ -1,6 +1,7 @@
 #include"common.h"
 #include"string.h"
 #include"elf.h"
+#include"vmm.h"
 
 elf_t elf_from_multiboot(multiboot_t* mb)
 {
@@ -11,15 +12,15 @@ elf_t elf_from_multiboot(multiboot_t* mb)
 	uint32_t shstrtab=sh[mb->shndx].addr;//段表字符串表的地址
 	for(i=0; i<mb->num; i++)//对所有mb->num个段
 	{
-		const char* name=(const char*)(shstrtab + sh[i].name);//段名
+		const char* name=(const char*)(shstrtab + sh[i].name)+PAGE_OFFSET;//段名
 		if(strcmp(name, ".strtab")==0)//字符串表
 		{
-			elf.strtab=(const char*)sh[i].addr;//该段的地址
+			elf.strtab=(const char*)sh[i].addr+PAGE_OFFSET;//该段的地址
 			elf.strtabsz=sh[i].size;//该段的大小
 		}
 		if(strcmp(name, ".symtab")==0)//符号表
 		{
-			elf.symtab=(elf_symbol_t*)sh[i].addr;
+			elf.symtab=(elf_symbol_t*)sh[i].addr+PAGE_OFFSET;
 			elf.symtabsz=sh[i].size;
 		}
 	}

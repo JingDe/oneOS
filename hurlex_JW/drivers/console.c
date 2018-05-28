@@ -5,11 +5,11 @@
  */
 
 #include"console.h"
-
+#include"vmm.h"
 
 
 // VGA的显示缓冲的起点是0xB8000
-static uint16_t *video_memory=(uint16_t *)0xB8000;
+static uint16_t *video_memory=(uint16_t *)(0xB8000+PAGE_OFFSET);
 
 // 屏幕光标的坐标
 static uint8_t cursor_x=0;

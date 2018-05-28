@@ -12,7 +12,7 @@
 ENTRY(start)
 SECTIONS
 {
-	PROVIDE( kern_start = . );
+	PROVIDE( kern_start = 0xC0100000 );
 	. =0x100000;
 	.init.text:
 	{
