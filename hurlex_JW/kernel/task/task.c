@@ -26,12 +26,15 @@ int32_t kernel_thread(int (*fn)(void*), void *arg)
 	
 	uint32_t *stack_top=(uint32_t*)((uint32_t) new_task + STACK_SIZE);
 	
-	*(--stack_top)=(uint32_t)arg;
-	*(--stack_top)=(uint32_t)kthread_exit;	// ???
-	*(--stack_top)=(uint32_t)fn;
+	*(--stack_top)=(uint32_t)kthread_exit;
+	*(--stack_top)=(uint32_t)arg;	
+	*(--stack_top)=(uint32_t)fn; 
+	// *(--stack_top)=(uint32_t)kthread_exit; //否则，切换到该线程将弹出执行函数地址kthread_exit
 	
 	new_task->context.esp=(uint32_t)new_task+STACK_SIZE-sizeof(uint32_t)*3;
-	// 切换到该线程将弹出执行函数地址fn
+	/* switch_to.s的ret指令返回之前，执行现场已被切换，esp指针指向的栈已被切换。
+	所以ret指令弹出的返回地址就是另一个执行流之前调用schedule之前保存的返回地址了。
+	这里就是构造出一个切换后可以弹出执行地址的初始栈来实现调用fn */
 	
 	// 设置新任务的标志寄存器未屏蔽中断
 	new_task->context.eflags=0x200;
@@ -52,6 +55,6 @@ int32_t kernel_thread(int (*fn)(void*), void *arg)
 void kthread_exit()
 {
 	register uint32_t val asm("eax");
-	printk("THread exited with value %d\n", val);
+	printk("Thread exited with value %d\n", val);
 	while(1);
 }
