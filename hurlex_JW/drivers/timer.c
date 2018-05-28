@@ -2,6 +2,7 @@
 #include"debug.h"
 #include"common.h"
 #include"idt.h"
+#include"sched.h"
 
 void timer_callback(pt_regs* regs)
 {

@@ -65,7 +65,7 @@ __attribute__((section(".init.text"))) void kern_entry()
 	// 启动分页后，所有寻址都将按照分页机制进行，包括剩余kern_entry（）函数本身，所以上文同时映射了0-4MB的虚拟地址
 	
 	// 切换内核栈
-	uint32_t kern_stack_top=((uint32_t) kern_stack + STACK_SIZE) &  0xFFFFFFF0;
+	kern_stack_top=((uint32_t) kern_stack + STACK_SIZE) &  0xFFFFFFF0;
 	asm volatile("mov %0, %%esp\n\t" "xor %%ebp, %%ebp" : : "r" (kern_stack_top));
 	
 	// 更新全局的multiboot指针
@@ -87,6 +87,7 @@ int thread(void *arg)
 			flag=0;
 		}
 	}
+	//printk_color(rc_black, rc_green, "B");
 	return 0;
 }
 
@@ -149,6 +150,7 @@ void kern_init()
 			flag=1;
 		}
 	}
+	//printk_color(rc_black, rc_green, "A");
 	
 	printk("hlt...\n");
 	while(1)

@@ -2,7 +2,7 @@
 #include"debug.h"
 
 void page_fault(pt_regs* regs)
-{
+{	
 	uint32_t cr2;
 	asm volatile("mov %%cr2, %0" : "=r" (cr2));
 	
@@ -34,5 +34,8 @@ void page_fault(pt_regs* regs)
 		printk_color(rc_black, rc_red, "The fault occurred during an instruction fetch.\n");
 	}
 
+	print_stack_trace();
+	
+	
 	while (1);
 }

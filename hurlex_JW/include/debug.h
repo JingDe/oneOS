@@ -15,6 +15,8 @@
 
 void init_debug();
 
+void print_stack_trace();
+
 // 打印当前的函数调用栈信息
 void panic(const char* msg);
 
