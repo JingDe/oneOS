@@ -14,12 +14,12 @@ SECTIONS
 {
 	PROVIDE( kern_start = 0xC0100000 );
 	. =0x100000;
-	.init.text:
+	.init.text :
 	{
 		*(.init.text)
 		. = ALIGN(4096);
 	}
-	.init.data:
+	.init.data :
 	{
 		*(.init.data)
 		. = ALIGN(4096);

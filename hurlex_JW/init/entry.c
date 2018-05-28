@@ -67,7 +67,7 @@ __attribute__((section(".init.text"))) void kern_entry()
 	kern_init();
 }
 
-void Kern_init()
+void kern_init()
 {
 	init_debug();
 	init_gdt();

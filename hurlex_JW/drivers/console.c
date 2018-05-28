@@ -6,7 +6,7 @@
 
 #include"console.h"
 #include"vmm.h"
-
+#include"common.h"
 
 // VGA的显示缓冲的起点是0xB8000
 static uint16_t *video_memory=(uint16_t *)(0xB8000+PAGE_OFFSET);
@@ -34,7 +34,7 @@ void console_clear()
 	uint16_t blank=0x20  |  (attribute_byte << 8);
 	
 	int i=0;
-	for(int i=0; i<80*25; i++)
+	for(i=0; i<80*25; i++)
 	{
 		video_memory[i]=blank;
 	}

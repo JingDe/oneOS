@@ -81,10 +81,10 @@ void switch_pgd(uint32_t pd);
 void map(pgd_t *pgd_now, uint32_t va, uint32_t pa, uint32_t flags);
 
 // 取消虚拟地址va的物理映射
-void unmap(pdg_t *pgd_now, uint32_t va);
+void unmap(pgd_t *pgd_now, uint32_t va);
 
 // 如果虚拟地址va映射到物理地址则返回1
-// 同事如果pa不是空指针则把物理地址写入pa参数
+// 同时如果pa不是空指针则把物理地址写入pa参数
 uint32_t get_mapping(pgd_t *pgd_now, uint32_t va, uint32_t *pa);
 
 // 页错误中断的函数处理
