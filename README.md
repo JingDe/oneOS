@@ -1,2 +1,1 @@
-# oneOS
-implement one operating system
+operating system
